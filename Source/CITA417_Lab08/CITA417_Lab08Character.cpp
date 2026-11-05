@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "CITA417_Lab08.h"
 
 ACITA417_Lab08Character::ACITA417_Lab08Character()
@@ -48,6 +49,9 @@ ACITA417_Lab08Character::ACITA417_Lab08Character()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void ACITA417_Lab08Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -130,4 +134,39 @@ void ACITA417_Lab08Character::DoJumpEnd()
 {
 	// signal the character to stop jumping
 	StopJumping();
+}
+
+
+void ACITA417_Lab08Character::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	UpdateAnimationState();
+}
+
+
+
+void ACITA417_Lab08Character::UpdateAnimationState()
+{
+	// Get the character's current velocity
+	FVector Velocity = GetVelocity();
+
+	// Ignore vertical movement when calculating speed
+	Velocity.Z = 0.0f;
+
+	// Calculate horizontal movement speed
+	MovementSpeed = Velocity.Size();
+
+	// Calculate movement direction relative to facing
+
+	const FVector LocalVelocity =
+		GetActorRotation().UnrotateVector(Velocity);
+
+	MovementDirection = FMath::RadiansToDegrees(
+		FMath::Atan2(LocalVelocity.Y, LocalVelocity.X)
+
+	);
+
+	// Check whether the character is jumping or falling
+	bIsAirborne = GetCharacterMovement()->IsFalling();
 }

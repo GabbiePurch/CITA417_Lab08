@@ -49,6 +49,29 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MouseLookAction;
 
+
+	// ------------------------------------------------------------------------------//
+
+	// My Addition for animation states
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation State")
+	float MovementSpeed = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation State")
+	float MovementDirection = 0.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Animation State")
+	bool bIsAirborne = false;
+
+
+
+	void UpdateAnimationState();
+
+
+	virtual void Tick(float DeltaTime) override;
+
+
 public:
 
 	/** Constructor */
