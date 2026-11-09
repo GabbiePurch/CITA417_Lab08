@@ -50,6 +50,12 @@ protected:
 	UInputAction* MouseLookAction;
 
 
+	/** Sprint Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UInputAction* SprintAction;
+
+
+
 	// ------------------------------------------------------------------------------//
 
 	// My Addition for animation states
@@ -66,7 +72,26 @@ protected:
 
 
 
+	// Normal movement speed
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
+	float NormalSpeed = 400.0f;
+
+	// Sprint movement speed
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
+	float SprintSpeed = 600.0f;
+
+	// Whether the player is currently sprinting
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement | Sprint")
+	bool bIsSprinting = false;
+
+
+
+
 	void UpdateAnimationState();
+
+	void StartSprint();
+	void StopSprint();
+
 
 
 	virtual void Tick(float DeltaTime) override;

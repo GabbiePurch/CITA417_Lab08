@@ -52,6 +52,8 @@ ACITA417_Lab08Character::ACITA417_Lab08Character()
 
 
 	PrimaryActorTick.bCanEverTick = true;
+
+	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 }
 
 void ACITA417_Lab08Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -69,11 +71,21 @@ void ACITA417_Lab08Character::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACITA417_Lab08Character::Look);
+
+
+		// Sprinting
+		EnhancedInputComponent->BindAction(SprintAction,ETriggerEvent::Started,this,&ACITA417_Lab08Character::StartSprint);
+
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed,this,&ACITA417_Lab08Character::StopSprint);
+
 	}
+
+
 	else
 	{
 		UE_LOG(LogCITA417_Lab08, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
+
 }
 
 void ACITA417_Lab08Character::Move(const FInputActionValue& Value)
@@ -169,4 +181,25 @@ void ACITA417_Lab08Character::UpdateAnimationState()
 
 	// Check whether the character is jumping or falling
 	bIsAirborne = GetCharacterMovement()->IsFalling();
+
+}
+
+
+
+void ACITA417_Lab08Character::StartSprint()
+{
+	bIsSprinting = true;
+
+	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+
+	UE_LOG(LogTemp, Warning, TEXT("Sprint Started! Speed: %.1f"), SprintSpeed);
+}
+
+void ACITA417_Lab08Character::StopSprint()
+{
+	bIsSprinting = false;
+
+	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
+
+	UE_LOG(LogTemp, Warning, TEXT("Sprint Stopped! Speed: %.1f"), NormalSpeed);
 }
