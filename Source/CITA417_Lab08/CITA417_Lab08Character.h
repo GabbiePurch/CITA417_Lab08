@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "CombatWeapon.h"
 #include "CITA417_Lab08Character.generated.h"
 
 class USpringArmComponent;
@@ -97,6 +98,21 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 
+
+
+	// Weapon class to spawn for the player
+	UPROPERTY(EditDefaultsOnly, Category = "Combat")
+	TSubclassOf<ACombatWeapon> WeaponClass;
+
+	// Reference to the player's weapon
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	TObjectPtr<ACombatWeapon> CurrentWeapon;
+
+	// Called when the player presses the attack button
+	void Attack();
+
+
+
 public:
 
 	/** Constructor */
@@ -114,6 +130,8 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	virtual void BeginPlay() override;
 
 public:
 

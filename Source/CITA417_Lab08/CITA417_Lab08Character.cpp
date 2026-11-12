@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "CombatWeapon.h"
 #include "CITA417_Lab08.h"
 
 ACITA417_Lab08Character::ACITA417_Lab08Character()
@@ -55,6 +56,43 @@ ACITA417_Lab08Character::ACITA417_Lab08Character()
 
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 }
+
+
+void ACITA417_Lab08Character::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Spawn the player's weapon
+	if (WeaponClass && GetWorld())
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = this;
+
+		CurrentWeapon = GetWorld()->SpawnActor<ACombatWeapon>(
+			WeaponClass,
+			GetActorLocation(),
+			GetActorRotation(),
+			SpawnParams
+		);
+
+		if (CurrentWeapon)
+		{
+			// Attach weapon to the character
+			CurrentWeapon->AttachToComponent(
+				GetMesh(),
+				FAttachmentTransformRules::SnapToTargetNotIncludingScale
+			);
+
+			UE_LOG(LogTemp, Warning, TEXT("Weapon spawned successfully!"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("WeaponClass is not assigned!"));
+	}
+}
+
 
 void ACITA417_Lab08Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -202,4 +240,17 @@ void ACITA417_Lab08Character::StopSprint()
 	GetCharacterMovement()->MaxWalkSpeed = NormalSpeed;
 
 	UE_LOG(LogTemp, Warning, TEXT("Sprint Stopped! Speed: %.1f"), NormalSpeed);
+}
+
+
+void ACITA417_Lab08Character::Attack()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->Fire();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cannot attack: No weapon assigned!"));
+	}
 }
