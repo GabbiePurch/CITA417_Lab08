@@ -60,3 +60,49 @@ The project was tested to verify character movement, sprinting, jumping, animati
 Gabbie Purchiaroni
 
 SUNY Morrisville – CITA 417
+
+
+
+## Combat Architecture
+
+```text
+Player Input (Left Mouse Button)
+             |
+             v
+Character (ACITA417_Lab08Character)
+             |
+             v
+Weapon Actor (ACombatWeapon)
+             |
+             v
+Line Trace / Hit Detection
+             |
+             v
+Target Actor (Cube or Sphere)
+             |
+             v
+Health Component (UCombatHealthComponent)
+             |
+             v
+Damage Applied / Health Reduced
+             |
+             v
+Health Reaches Zero?
+             |
+             v
+OnDeath Event → Target Destroyed
+```
+
+### Reusability
+
+If a destructible crate were added to the project, the existing `ACombatWeapon` would not need to be modified.
+
+The crate could reuse the `UCombatHealthComponent` to receive damage, track health, and trigger an event when health reaches zero. The crate would only need its own death behavior, such as destruction or a breaking animation.
+
+This architecture separates attack logic from health and damage management, allowing different objects to use the same combat system.
+
+### Independent Improvement
+
+An attack cooldown was implemented in `ACombatWeapon` to prevent firing continuously without a delay.
+
+The weapon checks the elapsed time since the previous attack before allowing another shot. This adds controlled firing behavior without duplicating combat logic in the Player Character.
