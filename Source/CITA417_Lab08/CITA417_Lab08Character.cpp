@@ -116,6 +116,20 @@ void ACITA417_Lab08Character::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed,this,&ACITA417_Lab08Character::StopSprint);
 
+
+
+		// Firing
+		if (FireAction)
+		{
+			EnhancedInputComponent->BindAction(
+				FireAction,
+				ETriggerEvent::Started,
+				this,
+				&ACITA417_Lab08Character::Attack
+			);
+		}
+
+
 	}
 
 

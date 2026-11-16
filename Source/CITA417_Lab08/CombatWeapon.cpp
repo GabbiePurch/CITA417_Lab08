@@ -1,6 +1,8 @@
 
 #include "CombatWeapon.h"
+#include "CombatHealthComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/ArrowComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
 #include "DrawDebugHelpers.h"
@@ -73,6 +75,27 @@ void ACombatWeapon::Fire()
         CameraLocation +
         (CameraRotation.Vector() * AttackRange);
 
+    // Find the muzzle point attached to the player's hand
+    // Find the specific arrow component named MuzzlePoint
+    UArrowComponent* MuzzlePoint = nullptr;
+
+    TArray<UArrowComponent*> ArrowComponents;
+    OwnerPawn->GetComponents<UArrowComponent>(ArrowComponents);
+
+    for (UArrowComponent* Arrow : ArrowComponents)
+    {
+        if (Arrow && Arrow->GetFName() == FName(TEXT("MuzzlePoint")))
+        {
+            MuzzlePoint = Arrow;
+            break;
+        }
+    }
+
+    // Use the muzzle location if available
+    FVector TraceStart = MuzzlePoint
+        ? MuzzlePoint->GetComponentLocation()
+        : CameraLocation;
+
     // Set up hit detection
     FHitResult HitResult;
 
@@ -80,20 +103,28 @@ void ACombatWeapon::Fire()
     TraceParams.AddIgnoredActor(OwnerPawn);
     TraceParams.AddIgnoredActor(this);
 
-    // Perform the line trace
+    // Find the direction from the muzzle toward the camera's aim point
+    FVector ShotDirection =
+        (TraceEnd - TraceStart).GetSafeNormal();
+
+    // Calculate the shot endpoint from the muzzle
+    FVector MuzzleTraceEnd =
+        TraceStart + (ShotDirection * AttackRange);
+
+    // Perform the line trace from the muzzle
     bool bHit = World->LineTraceSingleByChannel(
         HitResult,
-        CameraLocation,
-        TraceEnd,
+        TraceStart,
+        MuzzleTraceEnd,
         ECC_Visibility,
         TraceParams
     );
 
-    // Draw a debug line to visualize the shot
+    // Draw a debug line from the muzzle
     DrawDebugLine(
         World,
-        CameraLocation,
-        bHit ? HitResult.ImpactPoint : TraceEnd,
+        TraceStart,
+        bHit ? HitResult.ImpactPoint : MuzzleTraceEnd,
         bHit ? FColor::Green : FColor::Red,
         false,
         1.0f,
@@ -101,24 +132,52 @@ void ACombatWeapon::Fire()
         2.0f
     );
 
-    // Display hit or miss information
+
     if (bHit)
     {
+        AActor* HitActor = HitResult.GetActor();
+
         UE_LOG(
             LogTemp,
             Warning,
             TEXT("Weapon hit: %s"),
-            *GetNameSafe(HitResult.GetActor())
+            *GetNameSafe(HitActor)
         );
+
+        // Check whether the hit actor has a Health Component
+        if (HitActor)
+        {
+            UCombatHealthComponent* HealthComponent =
+                HitActor->FindComponentByClass<UCombatHealthComponent>();
+
+            if (HealthComponent)
+            {
+                // Apply damage to the target
+                HealthComponent->TakeDamage(AttackDamage);
+
+                UE_LOG(
+                    LogTemp,
+                    Warning,
+                    TEXT("Applied %.1f damage to %s"),
+                    AttackDamage,
+                    *GetNameSafe(HitActor)
+                );
+            }
+            else
+            {
+                UE_LOG(
+                    LogTemp,
+                    Warning,
+                    TEXT("Hit actor has no Health Component!")
+                );
+            }
+        }
     }
     else
     {
-        UE_LOG(
-            LogTemp,
-            Warning,
-            TEXT("Weapon missed!")
-        );
+        UE_LOG(LogTemp, Warning, TEXT("Weapon missed!"));
     }
+
 }
 
 
