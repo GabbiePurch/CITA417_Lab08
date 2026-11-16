@@ -1,65 +1,62 @@
-# CITA417_Lab08
+# CITA 417 – Lab 08 & Lab 09
 
-# CITA 417 — Lab 08
-## Character State & Animation Architecture
+## Project Overview
 
-### Project Overview
+This project was developed in Unreal Engine 5.8 using C++ and Blueprints for CITA 417. It demonstrates character movement, animation systems, weapon firing, collision detection, and health management.
 
-This project was developed in Unreal Engine 5.8 using C++ and Blueprints. The goal was to create a reusable character animation system that separates gameplay logic from animation decisions.
+## Features
 
-The character supports idle, walking, running, jumping, falling, landing, and sprinting animations.
+### Character Movement
+- Third-person character movement and jumping.
+- Sprinting using the Enhanced Input System.
+- C++ movement variables exposed to Blueprints.
 
-### Architecture Diagram
+### Animation System
+- Animation Blueprint with idle, walking, running, jumping, and falling states.
+- Animation State Machine driven by C++ character variables.
+- Firing animation implemented using an Animation Montage.
+- Layered animation blending allows the character to move while firing.
 
-```text
-C++ Character (CITA417_Lab08Character)
-    |
-    |-- MovementSpeed
-    |-- MovementDirection
-    |-- bIsAirborne
-    |
-    v
-Animation Blueprint (ABP_LAB08Character)
-    |
-    |-- Animation State Machine
-    |-- Locomotion Blend Space
-    |-- Jump / Fall / Landing Transitions
-    |
-    v
-Final Skeletal Animation Pose
-    |
-    v
-Character Mesh / Rendering
-```
+### Combat System
+- C++ weapon class (`ACombatWeapon`).
+- Left mouse button triggers weapon firing.
+- Line tracing for hit detection.
+- Debug lines visualize successful hits and misses.
+- Weapon cooldown and configurable attack damage.
+- MuzzlePoint component attached to the character's hand.
 
-### Architecture Explanation
+### Health and Damage
+- Custom C++ health component (`UCombatHealthComponent`).
+- Damageable cube and sphere targets.
+- Each successful shot applies damage to the target.
+- Targets are destroyed when their health reaches zero.
+- Unreal Engine Output Log displays damage and hit information.
 
-The C++ Character is responsible for gameplay information such as movement speed, movement direction, and whether the character is airborne. The Animation Blueprint reads these values and determines which animations should play using a Blend Space and animation state machine. This separation allows gameplay logic to remain independent of specific animation assets and transitions. Directly calling individual animations from multiple gameplay functions would create tight coupling, making the system harder to modify, maintain, and reuse.
+## Controls
 
-### Independent Improvement — Sprinting
+| Input | Action |
+|---|---|
+| W, A, S, D | Move |
+| Mouse | Look around |
+| Space | Jump |
+| Left Shift | Sprint |
+| Left Mouse Button | Fire weapon |
 
-I implemented a sprint system using Unreal Engine's Enhanced Input system and C++.
-
-Pressing and holding Left Shift increases the character's maximum movement speed from 400 to 600. Releasing Left Shift restores the normal movement speed.
-
-The system uses a dedicated `IA_Sprint` Input Action and updates the character's movement speed through C++. The Animation Blueprint automatically responds to the resulting speed changes through the locomotion Blend Space, without requiring gameplay code to select a specific running animation.
-
-### Testing
-
-The following functionality was tested successfully:
-
-- Idle-to-walking animation transitions
-- Walking and running animation blending
-- Movement speed changes
-- Jumping, falling, and landing animations
-- Sprint activation and deactivation
-- C++ compilation and Blueprint integration
-
-### Tools Used
+## Technologies Used
 
 - Unreal Engine 5.8
 - C++
-- Visual Studio Community 2026
 - Unreal Engine Blueprints
-- Enhanced Input
-- GitHub Desktop
+- Enhanced Input System
+- Animation Blueprints and Montages
+- Visual Studio Community 2026
+
+## Testing
+
+The project was tested to verify character movement, sprinting, jumping, animation transitions, weapon firing, hit detection, damage application, and target destruction.
+
+## Author
+
+Gabbie Purchiaroni
+
+SUNY Morrisville – CITA 417
